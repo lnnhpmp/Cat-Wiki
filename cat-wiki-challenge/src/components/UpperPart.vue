@@ -7,8 +7,7 @@
                     Get to know more about your cat breed
                 </h1>
                 <div>
-                    <input id="search-box" class="search-box"
-                    list="cat-breeds" v-on:keyup.enter="getBreedInfo"/>
+                    <input id="search-box" class="search-box" list="cat-breeds" v-on:keyup.enter="getBreedInfo"/>
                     <datalist id="cat-breeds">
                         <option v-for="breed in breedList" :key="breed.id">
                             {{breed.name}}
@@ -52,7 +51,7 @@
                 <p class="seeMore">SEE MORE &#8594;</p>
             </div>
             <div class="mostSearchedImages">
-                <div class="mostSearchedImage" v-for="url in imgUrls" :key="url">
+                <div class="mostSearchedImage" v-for="(url, index) in imgUrls" :key="index">
                     <img :src="url[0]">
                     <p>{{url[1]}}</p>
                 </div>
@@ -64,22 +63,22 @@
 <script>
 import breedProperties from './breedProperties'
 export default {
+    props: ['breedList'],
+
     components: {
         breedProperties,
     },
 
-    created() {
-        this.getBreedList()
-        // this.getRandomFourImages()
-        this.getImagesMostSearched()
+    mounted() {
+        this.copyBreedList()
+        this.getRandomFourImages(this.breedListLocal)
     },
 
     data() {
         return {
             isHomePage: true,
-            breedList: [],
             breeds: [],
-            imgUrl: '',
+            breedListLocal: [],
             imgUrls: [],
             breedImgUrl: '',
             breed: null,
@@ -87,18 +86,8 @@ export default {
     },
 
     methods: {
-        getBreedList() {
-            fetch('https://api.thecatapi.com/v1/breeds')
-                .then((response) => {
-                    return response.json()
-                })
-                .then((breeds) => {
-                    this.breedList = breeds
-                    this.breed = this.breedList[0]
-                })
-                .then(() => {
-                    this.getRandomFourImages(this.breedList)
-                })
+        copyBreedList() {
+            this.breedListLocal = this.breedList
         },
 
         async getRandomFourImages(breedList) {
@@ -119,19 +108,10 @@ export default {
                     return response.json()
                 })
                 .then((details) => {
+                    console.log('details---', details)
                     this.breed = details[0].breeds[0]
                     this.breedImgUrl = details[0].url
                     return details[0].url
-                })
-        },
-
-        getImagesMostSearched(requestUrl = 'https://api.thecatapi.com/v1/images/search?breed_ids=abys') {
-            fetch(requestUrl)
-                .then((response) => {
-                    return response.json()
-                })
-                .then((breed) => {
-                    this.imgUrl = breed[0].url
                 })
         },
 

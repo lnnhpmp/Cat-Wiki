@@ -1,20 +1,44 @@
 <template>
     <div>
-        <UpperPart />
+        <UpperPart v-if="isBreedListFetched" :breedList="breedList"/>
         <LowerPart />
     </div>
 </template>
 
 <script>
-// import catwikiTitle from '../components/catwikiTitle'
 import UpperPart from '../components/UpperPart'
 import LowerPart from '../components/LowerPart'
 
 export default {
+    created() {
+        this.getBreedList()
+    },
+
     components: {
         UpperPart,
         LowerPart,
-        // catwikiTitle
+    },
+
+    data() {
+        return {
+            breedList: [],
+            isBreedListFetched: false,
+        }
+    },
+
+    methods: {
+        getBreedList() {
+            fetch('https://api.thecatapi.com/v1/breeds')
+                .then((response) => {
+                    return response.json()
+                })
+                .then((breeds) => {
+                    this.breedList = breeds
+                })
+                .then(() => {
+                    this.isBreedListFetched = true
+                })
+        },
     },
 }
 </script>
